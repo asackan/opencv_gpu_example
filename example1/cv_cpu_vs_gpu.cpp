@@ -22,7 +22,7 @@ void cpuSpeedTest() {
     cv::imshow("Image", result);
 
     char key = ' ';
-    if(key =='q') break;
+    if  (key =='q') break;
   }
 
   cap.release();
@@ -48,7 +48,7 @@ void gpuSpeedTest() {
     cv::imshow("Image", image);
 
     char key = ' ';
-    if(key =='q') break;
+    if  (key =='q') break;
   }
 
   cap.release();
