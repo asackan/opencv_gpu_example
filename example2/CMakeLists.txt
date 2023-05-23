@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
-PROJECT(OpenCV_Example_1)
+PROJECT(OpenCV_Example_2)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,8 +23,7 @@ include_directories(${fmt_INCLUDE_DIRS})
 link_directories(${ZED_LIBRARY_DIR})
 link_directories(${CUDA_LIBRARY_DIRS})
 
-ADD_EXECUTABLE(example1 cv_cpu_vs_gpu.cpp)
-ADD_EXECUTABLE(with_zed cv_with_zed.cpp)
+ADD_EXECUTABLE(example2 main.cpp)
 
 if (LINK_SHARED_ZED)
     SET(ZED_LIBS ${ZED_LIBRARIES} ${CUDA_CUDA_LIBRARY} ${CUDA_CUDART_LIBRARY})
@@ -32,5 +31,4 @@ else()
     SET(ZED_LIBS ${ZED_STATIC_LIBRARIES} ${CUDA_CUDA_LIBRARY} ${CUDA_LIBRARY})
 endif()
 
-TARGET_LINK_LIBRARIES(example1  ${ZED_LIBS} ${OpenCV_LIBS} fmt::fmt)
-TARGET_LINK_LIBRARIES(with_zed ${ZED_LIBS} ${OpenCV_LIBS})
+TARGET_LINK_LIBRARIES(example2  ${ZED_LIBS} ${OpenCV_LIBS} fmt::fmt)

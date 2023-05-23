@@ -1,3 +1,7 @@
+본 예제는 zed example 과 Nicolai Nielsen Youtube 채널을 보며 따라만들었습니다.
+- https://github.com/stereolabs/zed-sdk
+- https://www.youtube.com/@NicolaiAI
+
 # System
 - **Orin AGX Developer 보드**
 - **ZED 1 Camera**
