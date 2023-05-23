@@ -1,64 +1,69 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
+
 #include <opencv2/core/cuda.hpp>
 #include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudaarithm.hpp>
+#include <opencv2/cudafilters.hpp>
+#include <opencv2/cudabgsegm.hpp>
+#include <opencv2/cudaobjdetect.hpp>
+#include <opencv2/cudaoptflow.hpp>
+#include <opencv2/cudastereo.hpp>
+#include <opencv2/cudafeatures2d.hpp>
+
 #include <fmt/core.h>
+#include <iostream>
 
-// Open up the webcam
-cv::VideoCapture cap(0);
-
-void cpuSpeedTest() {
-
-  while (cap.isOpened()) {
-
-    cv::Mat image, result;
-    bool isSuccess = cap.read(image);
-
-    if (image.empty()) fmt::println("Could not load in image!");
-
-    cv::bilateralFilter(image, result, 20, 70, 70);
-
-    cv::imshow("Image", result);
-
-    char key = ' ';
-    if  (key =='q') break;
+int main(int argc, char** argv)
+{
+  // Open up the webcam
+  cv::VideoCapture cap(0);
+  if (!cap.isOpened()) {
+    std::cerr << "Camera open failed!\n";
+    return -1;
   }
 
-  cap.release();
-  cv::destroyAllWindows();
-}
+  // Print GPU info
+  cv::cuda::printCudaDeviceInfo(0);
 
-void gpuSpeedTest() {
+  // Setup variables and matrices
+  cv::Mat img;
+  cv::cuda::GpuMat imgGpu, mat;
+  std::vector<cv::cuda::GpuMat> gpuMats;
 
-  while (cap.isOpened()) {
+  while(cap.isOpened()) {
 
-    cv::Mat image;
-    bool isSuccess = cap.read(image);
+    cap >> img;
 
-    cv::cuda::GpuMat imgGPU;
-    imgGPU.upload(image);
+    imgGpu.upload(img);
 
-    if (imgGPU.empty()) fmt::println("Could not load in image!");
+  // Core operations
 
-    cv::cuda::bilateralFilter(imgGPU, imgGPU, 20, 70, 70);
+    cv::cuda::cvtColor(imgGpu, imgGpu, cv::COLOR_BGR2GRAY);
+    //cv::cuda::transpose(imgGpu, imgGpu);
 
-    imgGPU.download(image);
+    //cv::cuda::split(imgGpu, gpuMats);
+    //std::cout << gpuMats.size() << std::endl;
 
-    cv::imshow("Image", image);
+    // Do the operations
 
-    char key = ' ';
-    if  (key =='q') break;
+    //cv::cuda::merge(gpuMats, imgGpu);
+
+  // Elements wise operations
+
+    //cv::cuda::threshold(imgGpu, imgGpu, 100, 255, cv::THRESH_BINARY);
+
+  // Matrix operations
+
+    cv::cuda::normalize(imgGpu, imgGpu, 0, 1, cv::NORM_MINMAX, CV_32F);
+
+    imgGpu.download(img);
+
+    cv::imshow("Image", img);
+
+    if(cv::waitKey(1) == 'q') break;
   }
-
   cap.release();
-  cv::destroyAllWindows();
-}
-
-int main() {
-  
-  //cpuSpeedTest();
-  gpuSpeedTest();
-
-  return EXIT_SUCCESS;
+  return 0;
 }
