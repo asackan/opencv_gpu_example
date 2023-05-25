@@ -1,3 +1,5 @@
+// OpenCV with ZED 1 Camera
+
 #include <sl/Camera.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
