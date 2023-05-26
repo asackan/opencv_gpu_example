@@ -16,7 +16,7 @@
 - **zed(lib)**
 
 # Use
-## inside of example folder you want to build
+### inside of example folder you want to build
 
 - **example 1**
   - OpenCV uses CPU
