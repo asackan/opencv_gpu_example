@@ -19,22 +19,31 @@
 ## inside of example folder you want to build
 
 - **example 1**
-  - OpenCV uses CPU
-  - OpenCV Mat 사용법
+  - OpenCV uses CPU & GPU
+  - OpenCV Mat GpuMat 사용법
 
 - **example 2**
-  - OpenCV uses GPU
-  - OpenCV GpuMat 사용법
-
-- **example 3**
   - OpenCV with ZED 1 Camera
   - Zed Mat -> OpenCV Mat -> OpenCV GpuMat 사용법
   - zed 1 카메라 스트리밍 및 이미지 처리 방법
 
+- **example 3**
+  - Image Processing
+  - 그레이 스케일
+  - 3채널 분해
+  - 채널 제한
+  - 정규화
+
 - **example 4**
-  - writing..
-  - writing..
-  
+  - Image Filtering
+  - Gaussian
+  - Laplacian
+  - Morphology
+
+- **example 5**
+  - corner detection
+  - use harris corner
+    
 ## 코드 사용법
 ```
   mkdir build && cd build

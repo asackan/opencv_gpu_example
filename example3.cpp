@@ -16,10 +16,11 @@
 
 #include <iostream>
 
+// Open up the webcam
+cv::VideoCapture cap(0);
+
 int main(int argc, char** argv)
 {
-  // Open up the webcam
-  cv::VideoCapture cap(0);
   if (!cap.isOpened()) {
     std::cerr << "Camera open failed!\n";
     return -1;
@@ -39,33 +40,33 @@ int main(int argc, char** argv)
 
     imgGpu.upload(img);
 
-  // Core operations
-    // 그레이 스케일로 변경
+// Core operations
+  // 그레이 스케일로 변경
     cv::cuda::cvtColor(imgGpu, imgGpu, cv::COLOR_BGR2GRAY);
 
-    // 회전 90도
-    //cv::cuda::transpose(imgGpu, imgGpu);
+  // 회전 90도
+    cv::cuda::transpose(imgGpu, imgGpu);
 
-    // 3채널로 분해
+  // 3채널로 분해
     //cv::cuda::split(imgGpu, gpuMats);
     //std::cout << gpuMats.size() << std::endl;
 
-  // Do the operations
-    // 스플릿 한거 합치기
+// Do the operations
+  // 스플릿 한거 합치기
     //cv::cuda::merge(gpuMats, imgGpu);
 
-  // Elements wise operations
-    // 채널 제한
+// Elements wise operations
+  // 채널 제한
     //cv::cuda::threshold(imgGpu, imgGpu, 100, 255, cv::THRESH_BINARY);
 
-  // Matrix operations
-    // 정규화
+// Matrix operations
+  // 정규화
     //cv::cuda::normalize(imgGpu, imgGpu, 0, 1, cv::NORM_MINMAX, CV_32F);
 
     imgGpu.download(img);
 
     cv::imshow("Image", img);
-
+    
     if(cv::waitKey(1) == 'q') break;
   }
   cap.release();

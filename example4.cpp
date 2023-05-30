@@ -1,3 +1,5 @@
+// Image Filter
+
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
@@ -11,59 +13,40 @@
 #include <opencv2/cudaoptflow.hpp>
 #include <opencv2/cudastereo.hpp>
 #include <opencv2/cudafeatures2d.hpp>
-
-#include <fmt/core.h>
-#include <iostream>
-
+ 
 int main(int argc, char** argv)
 {
-  // Open up the webcam
   cv::VideoCapture cap(0);
-  if (!cap.isOpened()) {
-    std::cerr << "Camera open failed!\n";
-    return -1;
-  }
 
-  // Print GPU info
   cv::cuda::printCudaDeviceInfo(0);
 
-  // Setup variables and matrices
   cv::Mat img;
-  cv::cuda::GpuMat imgGpu, mat;
-  std::vector<cv::cuda::GpuMat> gpuMats;
+  cv::cuda::GpuMat imgGpu;
 
   while(cap.isOpened()) {
 
-    cap >> img;
-
+    cap.read(img);
     imgGpu.upload(img);
 
-  // Core operations
-    // 그레이 스케일로 변경
     cv::cuda::cvtColor(imgGpu, imgGpu, cv::COLOR_BGR2GRAY);
 
-    // 회전 90도
-    //cv::cuda::transpose(imgGpu, imgGpu);
+  // Image filtering
+    
+    // Gaussian Filter
+    auto gaussianFilter = cv::cuda::createGaussianFilter(CV_8UC1, CV_8UC1, {3,3}, 1);
+    gaussianFilter->apply(imgGpu, imgGpu);
 
-    // 3채널로 분해
-    //cv::cuda::split(imgGpu, gpuMats);
-    //std::cout << gpuMats.size() << std::endl;
+    // Laplacian Filter
+    // auto laplacianFilter = cv::cuda::createLaplacianFilter(CV_8UC1, CV_8UC1, 3, 3);
+    // laplacianFilter->apply(imgGpu, imgGpu);
 
-  // Do the operations
-    // 스플릿 한거 합치기
-    //cv::cuda::merge(gpuMats, imgGpu);
-
-  // Elements wise operations
-    // 채널 제한
-    //cv::cuda::threshold(imgGpu, imgGpu, 100, 255, cv::THRESH_BINARY);
-
-  // Matrix operations
-    // 정규화
-    //cv::cuda::normalize(imgGpu, imgGpu, 0, 1, cv::NORM_MINMAX, CV_32F);
+    // Morp Filter
+    // auto morpFilter = cv::cuda::createMorphologyFilter(cv::MORPH_ERODE, CV_8UC1, 6);
+    // morpFilter->apply(imgGpu, imgGpu);
 
     imgGpu.download(img);
 
-    cv::imshow("Image", img);
+    imshow("Image", img);
 
     if(cv::waitKey(1) == 'q') break;
   }
