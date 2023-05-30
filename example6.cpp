@@ -1,94 +1,63 @@
-// Monocular Camera Depth Estimation
+// Hough
 
-#include <iostream>
-#include <fstream>
-#include <opencv2/opencv.hpp>
-#include <opencv2/dnn.hpp>
-#include <opencv2/dnn/all_layers.hpp>
-#include <vector>
- 
-int clip(int n, int lower, int upper) {
-  return std::max(lower, std::min(n, upper));
-}
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/core.hpp>
 
-std::vector<std::string> getOutputsNames(const cv::dnn::Net& net) {
+#include <opencv2/core/cuda.hpp>
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudaarithm.hpp>
+#include <opencv2/cudafilters.hpp>
+#include <opencv2/cudabgsegm.hpp>
+#include <opencv2/cudaobjdetect.hpp>
+#include <opencv2/cudaoptflow.hpp>
+#include <opencv2/cudastereo.hpp>
+#include <opencv2/cudafeatures2d.hpp>
 
-  static std::vector<std::string> names;
+cv::VideoCapture cap(0);
 
-  if (names.empty()){
+cv::RNG rng(12345);
 
-    std::vector<int32_t> out_layers = net.getUnconnectedOutLayers();
-    std::vector<std::string> layers_names = net.getLayerNames();
-
-    names.resize(out_layers.size());
-
-    for (size_t i=0; i < out_layers.size(); ++i)
-      names[i] = layers_names[out_layers[i] - 1];
-  }
-  return names;
-}
-
-int main(int argc, char** argv)
+int main()
 {
-  std::string file_path = "/";
-  std::string model = "model name.onnx";
 
-  // Read in the neural network form the files
-  auto net = cv::dnn::readNet(file_path + model);
+  cv::Mat img;
+  cv::cuda::GpuMat imgGpu, gray, circlesGpu;
 
-  if (net.empty()) return -1;
+  std::vector<cv::Vec3f> circles;
 
-  // Run on either CPU or GPU
-  net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-  net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
+  while(cap.isOpened()) {
 
-  cv::VideoCapture cap(0);
+    cap.read(img);
+    imgGpu.upload(img);
 
-  while (cap.isOpened()) {
+    cv::cuda::cvtColor(imgGpu, gray, cv::COLOR_BGR2GRAY);
 
-    cv::Mat image;
-    cap.read(image);
+    // Image Filtering
+    auto gaussianFilter = cv::cuda::createGaussianFilter(CV_8UC1, CV_8UC1, {3,3}, 1);
+    gaussianFilter->apply(gray, gray);
 
-    if(image.empty()) {
-      cv::waitKey(0);
-      std::cout << "image not available!" << std::endl;
-      break;
+    // Circle Detector
+    auto circleDetection = cv::cuda::createHoughCirclesDetector(1, 100, 120, 50, 1, 50, 5);
+    circleDetection->detect(gray, circlesGpu);
+
+    circles.resize(circlesGpu.size().width);
+    if(!circles.empty()) {
+      circlesGpu.row(0).download(cv::Mat(circles).reshape(3,1));
     }
 
-    int image_width = image.rows;
-    int image_height = image.cols;
+    for(size_t i=0; i < circles.size();i++)
+    {
+      int r = rng.uniform(0,255);
+      int g = rng.uniform(0, 255);
+      int b = rng.uniform(0,255);
 
-    cv::Mat blob = cv::dnn::blobFromImage(image, 1 / 255.f, cv::Size(384, 384), cv::Scalar(123.675, 116.28, 103.53), true, false);
-
-    // Set the blob to be input to the NN
-    net.setInput(blob);
-
-    // Forward pass of the blob through the NN to get the predictions
-    cv::Mat output = net.forward(getOutputsNames(net)[0]);
-
-    // Convert Size to 384 x 384 from 1 x 384 x 384
-    const std::vector<int32_t> size = { output.size[1], output.size[2] };
-    output = cv::Mat(static_cast<int32_t>(size.size()), &size[0], CV_32F, output.ptr());
-
-    cv::resize(output, output, image.size());
-
-    // Visualize Output Image
-    double min, max;
-    cv::minMaxLoc(output, &min, &max);
-    const double range = max - min;
-
-    // Normalize
-    output.convertTo(output, CV_32F, 1.0 / range, -(min / range));
-  
-    // Scaling (0 - 255)
-    output.convertTo(output, CV_8U, 255.0);
-
-    imshow("image", image);
-    imshow("depth", output);
-
+      cv::Vec3i cir = circles[i];
+      circle(img, cv::Point(cir[0], cir[1]), cir[2], cv::Scalar(b,g,r), 2, cv::LINE_AA);
+    }
+    imshow("Image", img);
     if(cv::waitKey(1) =='q') break;
   }
   cap.release();
-  cv::destroyAllWindows();
   return 0;
 }

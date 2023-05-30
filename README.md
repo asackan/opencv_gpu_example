@@ -43,6 +43,9 @@
 - **example 5**
   - corner detection
   - use harris corner
+
+- **example 6**
+  - Hough Transform
     
 ## 코드 사용법
 ```

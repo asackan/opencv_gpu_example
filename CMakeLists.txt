@@ -34,7 +34,7 @@ ADD_EXECUTABLE(example2 example2.cpp)
 ADD_EXECUTABLE(example3 example3.cpp)
 ADD_EXECUTABLE(example4 example4.cpp)
 ADD_EXECUTABLE(example5 example5.cpp)
-ADD_EXECUTABLE(example6 example5.cpp)
+ADD_EXECUTABLE(example6 example6.cpp)
 
 TARGET_LINK_LIBRARIES(example1 ${ZED_LIBS} ${OpenCV_LIBS} fmt::fmt)
 TARGET_LINK_LIBRARIES(example2 ${ZED_LIBS} ${OpenCV_LIBS})
