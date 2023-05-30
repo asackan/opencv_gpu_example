@@ -15,7 +15,7 @@
 - **fmt**
 - **zed(lib)**
 
-# Use
+# Examples
 ### inside of example folder you want to build
 
 - **example 1**
@@ -46,8 +46,9 @@
 
 - **example 6**
   - Hough Transform
+  - Circle Detection
     
-## 코드 사용법
+## Build
 ```
   mkdir build && cd build
   cmake ..
